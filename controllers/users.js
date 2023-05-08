@@ -2,9 +2,7 @@ const User = require("../models/user");
 const { errBadReq, errNotFound, errServer } = require("../errors/error");
 
 const handleUserError = (err, res) => {
-  console.log(err);
-  console.log(err.name);
-  if (err.name === "ValidationError") {
+  if (err.name === "ValidationError" || err.name === "CastError") {
     return res.status(errBadReq).send({
       message: "Переданы некорректные данные пользователя",
     });
@@ -19,12 +17,7 @@ const handleUserError = (err, res) => {
 
 const getUsers = (req, res) => {
   User.find({})
-    .orFail(() => {
-      const error = new Error("Пользователь не найден");
-      throw error;
-    })
     .then((users) => {
-      console.log(users);
       res.send({ data: users });
     })
     .catch((err) => {
@@ -34,10 +27,7 @@ const getUsers = (req, res) => {
 
 const getUserById = (req, res) => {
   User.findById(req.params.userId)
-    .orFail(() => {
-      const error = new Error("Пользователь не найден");
-      throw error;
-    })
+    .orFail()
     .then((user) => {
       res.send({ data: user });
     })
@@ -50,8 +40,7 @@ const createUser = (req, res) => {
   const { name, about, avatar } = req.body;
   User.create({ name, about, avatar })
     .then((user) => {
-      res.send({ data: user });
-      console.log(user);
+      res.status(201).send({ data: user });
     })
     .catch((err) => {
       handleUserError(err, res);
@@ -68,6 +57,7 @@ const updateProfile = (req, res) => {
       runValidators: true,
     }
   )
+    .orFail()
     .then((user) => {
       res.send({ data: user });
     })
@@ -86,6 +76,7 @@ const updateAvatar = (req, res) => {
       runValidators: true,
     }
   )
+    .orFail()
     .then((user) => res.send({ data: user }))
     .catch((err) => {
       handleUserError(err, res);
