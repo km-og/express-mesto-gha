@@ -1,8 +1,8 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
-const router = require("./routes");
 const helmet = require("helmet");
+const router = require("./routes");
 
 const { PORT = 3000 } = process.env;
 const app = express();
@@ -22,5 +22,5 @@ app.use((req, res, next) => {
 app.use(router);
 
 app.listen(PORT, () => {
-  console.log(`App listening on port ${PORT}`);
+  // console.log(`App listening on port ${PORT}`);
 });

@@ -4,15 +4,15 @@ const { errBadReq, errNotFound, errServer } = require("../errors/error");
 const handleUserError = (err, res) => {
   if (err.name === "ValidationError" || err.name === "CastError") {
     return res.status(errBadReq).send({
-      message: "Переданы некорректные данные пользователя",
+      message: "Переданы некорректные данные карточки",
     });
-  } else if (err.name === "DocumentNotFoundError" || err.name === "Error") {
+  } if (err.name === "DocumentNotFoundError" || err.name === "Error") {
     return res
       .status(errNotFound)
-      .send({ message: "Пользователь с указанным _id не найден" });
-  } else {
-    res.status(errServer).send({ message: "На сервере произошла ошибка" });
-  }
+      .send({ message: "Карточка с указанным _id не найден" });
+  } return (
+    res.status(errServer).send({ message: "На сервере произошла ошибка" })
+  );
 };
 
 const getUsers = (req, res) => {
@@ -55,7 +55,7 @@ const updateProfile = (req, res) => {
     {
       new: true,
       runValidators: true,
-    }
+    },
   )
     .orFail()
     .then((user) => {
@@ -74,7 +74,7 @@ const updateAvatar = (req, res) => {
     {
       new: true,
       runValidators: true,
-    }
+    },
   )
     .orFail()
     .then((user) => res.send({ data: user }))
