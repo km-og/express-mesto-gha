@@ -6,13 +6,13 @@ const handleCardError = (err, res) => {
     return res.status(errBadReq).send({
       message: "Переданы некорректные данные карточки",
     });
-  } if (err.name === "DocumentNotFoundError" || err.name === "Error") {
+  }
+  if (err.name === "DocumentNotFoundError" || err.name === "Error") {
     return res
       .status(errNotFound)
       .send({ message: "Карточка с указанным _id не найден" });
-  } return (
-    res.status(errServer).send({ message: "На сервере произошла ошибка" })
-  );
+  }
+  return res.status(errServer).send({ message: "На сервере произошла ошибка" });
 };
 
 const getCards = (req, res) => {
@@ -51,7 +51,7 @@ const likeCard = (req, res) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $addToSet: { likes: req.user._id } },
-    { new: true },
+    { new: true }
   )
     .orFail()
     .then((like) => {
@@ -66,8 +66,9 @@ const dislikeCards = (req, res) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $pull: { likes: req.user._id } },
-    { new: true },
+    { new: true }
   )
+    .orFail()
     .then((dislike) => {
       res.send({ data: dislike });
     })
