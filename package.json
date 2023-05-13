@@ -19,9 +19,12 @@
   },
   "homepage": "https://github.com/km-og/express-mesto-gha#readme",
   "dependencies": {
+    "bcryptjs": "^2.4.3",
     "body-parser": "^1.20.2",
+    "dotenv": "^16.0.3",
     "express": "^4.18.2",
     "helmet": "^7.0.0",
+    "jsonwebtoken": "^9.0.0",
     "mongoose": "^7.0.5",
     "validator": "^13.9.0"
   },

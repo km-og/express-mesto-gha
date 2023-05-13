@@ -1,19 +1,5 @@
 const Card = require("../models/card");
-const { errBadReq, errNotFound, errServer } = require("../errors/error");
-
-const handleCardError = (err, res) => {
-  if (err.name === "ValidationError" || err.name === "CastError") {
-    return res.status(errBadReq).send({
-      message: "Переданы некорректные данные карточки",
-    });
-  }
-  if (err.name === "DocumentNotFoundError" || err.name === "Error") {
-    return res
-      .status(errNotFound)
-      .send({ message: "Карточка с указанным _id не найден" });
-  }
-  return res.status(errServer).send({ message: "На сервере произошла ошибка" });
-};
+const handleCardError = require("../middlewares/errors");
 
 const getCards = (req, res) => {
   Card.find({})
@@ -27,6 +13,7 @@ const getCards = (req, res) => {
 
 const createCard = (req, res) => {
   const { name, link } = req.body;
+  console.log(req.user);
   Card.create({ name, link, owner: req.user._id })
     .then((card) => {
       res.status(201).send({ data: card });
@@ -37,10 +24,16 @@ const createCard = (req, res) => {
 };
 
 const deleteCard = (req, res) => {
-  Card.findByIdAndRemove(req.params.cardId)
+  Card.findById(req.params.cardId)
     .orFail()
     .then((card) => {
-      res.send({ data: card });
+      if (req.user._id === card.owner.toString()) {
+        res.send({ data: card });
+        card.deleteOne(req.params.cardId);
+      } else {
+        const error = new Error("Произошла ошибка");
+        throw error;
+      }
     })
     .catch((err) => {
       handleCardError(err, res);
