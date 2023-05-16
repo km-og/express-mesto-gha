@@ -1,5 +1,4 @@
 const Card = require("../models/card");
-const handleCardError = require("../middlewares/errors");
 const BadReqErr = require("../errors/BadReqErr");
 const NotFoundErr = require("../errors/NotFoundErr");
 const ForbiddenErr = require("../errors/ForbiddenErr");
@@ -45,7 +44,7 @@ const deleteCard = (req, res, next) => {
       }
     })
     .catch((err) => {
-      handleCardError(err, res);
+      next(err);
     });
 };
 
