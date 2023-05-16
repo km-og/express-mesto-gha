@@ -3,7 +3,7 @@ const usersRouter = require("./users");
 const cardsRouter = require("./cards");
 const { login, createUser } = require("../controllers/users");
 const auth = require("../middlewares/auth");
-const NotFoundErr = require("../errors/notFoundErr");
+const NotFoundErr = require("../errors/NotFoundErr");
 
 router.post("/signin", login);
 router.post("/signup", createUser);

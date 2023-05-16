@@ -5,7 +5,7 @@ const { NODE_ENV, JWT_SECRET } = process.env;
 
 const BadReqErr = require("../errors/BadReqErr");
 const ConflictErr = require("../errors/ConflictErr");
-const NotFoundErr = require("../errors/notFoundErr");
+const NotFoundErr = require("../errors/NotFoundErr");
 
 const getUsers = (req, res, next) => {
   User.find({})
