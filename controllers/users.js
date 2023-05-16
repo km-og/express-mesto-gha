@@ -3,43 +3,58 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { NODE_ENV, JWT_SECRET } = process.env;
 
-const handleUserError = require("../middlewares/errors");
+const BadReqErr = require("../errors/BadReqErr");
+const ConflictErr = require("../errors/ConflictErr");
+const NotFoundErr = require("../errors/notFoundErr");
 
-const getUsers = (req, res) => {
+const getUsers = (req, res, next) => {
   User.find({})
     .then((users) => {
       res.send({ data: users });
     })
     .catch((err) => {
-      handleUserError(err, res);
+      if (err.name === "DocumentNotFoundError") {
+        next(new NotFoundErr("Пользователи не найдены"));
+      } else {
+        next(err);
+      }
     });
 };
 
-const getUserById = (req, res) => {
+const getUserById = (req, res, next) => {
   User.findById(req.params.userId)
     .orFail()
     .then((user) => {
       res.send({ data: user });
     })
     .catch((err) => {
-      handleUserError(err, res);
+      if (err.name === "DocumentNotFoundError") {
+        next(new NotFoundErr("Пользователь с указанным _id не найден"));
+      }
     });
 };
 
-const createUser = (req, res) => {
+const createUser = (req, res, next) => {
   const { name, about, avatar, email, password } = req.body;
   bcrypt.hash(password, 10).then((hash) =>
     User.create({ name, about, avatar, email, password: hash })
       .then((user) => {
-        res.status(201).send({ data: user });
+        res.status(201).send({ data: name, about, avatar, email });
       })
       .catch((err) => {
-        handleUserError(err, res);
+        if (err.name === "ValidationError") {
+          next(new BadReqErr("Переданы некорректные данные пользователя"));
+        }
+        if (err.name === "Unauthorized" || err.code === 11000) {
+          next(new ConflictErr("Пользователь с таким email уже существует"));
+        } else {
+          next(err);
+        }
       })
   );
 };
 
-const updateProfile = (req, res) => {
+const updateProfile = (req, res, next) => {
   const { name, about } = req.body;
   User.findByIdAndUpdate(
     req.user._id,
@@ -54,11 +69,15 @@ const updateProfile = (req, res) => {
       res.send({ data: user });
     })
     .catch((err) => {
-      handleUserError(err, res);
+      if (err.name === "ValidationError" || err.name === "CastError") {
+        next(new BadReqErr("Переданы некорректные данные пользователя"));
+      } else {
+        next(err);
+      }
     });
 };
 
-const updateAvatar = (req, res) => {
+const updateAvatar = (req, res, next) => {
   const { avatar } = req.body;
   User.findByIdAndUpdate(
     req.user._id,
@@ -71,11 +90,15 @@ const updateAvatar = (req, res) => {
     .orFail()
     .then((user) => res.send({ data: user }))
     .catch((err) => {
-      handleUserError(err, res);
+      if (err.name === "ValidationError" || err.name === "CastError") {
+        next(new BadReqErr("Переданы некорректные данные пользователя"));
+      } else {
+        next(err);
+      }
     });
 };
 
-const login = (req, res) => {
+const login = (req, res, next) => {
   const { email, password } = req.body;
   User.findUserByCredentials(email, password)
     .then((user) => {
@@ -86,26 +109,29 @@ const login = (req, res) => {
           expiresIn: "7d",
         }
       );
-      // res.send({ token });
-      res.cookie("jwt", token, {
-        httpOnly: true,
-      });
+      res.send({ token });
+      // res.cookie("jwt", token, {
+      //   httpOnly: true,
+      // });
       res.send(user);
     })
     .catch((err) => {
-      console.log(err.name);
-      handleUserError(err, res);
+      next(err);
     });
 };
 
-const getUserInfo = (req, res) => {
+const getUserInfo = (req, res, next) => {
   User.findById(req.user._id)
     .orFail()
     .then((user) => {
       res.send({ data: user });
     })
     .catch((err) => {
-      handleUserError(err, res);
+      if (err.name === "DocumentNotFoundError") {
+        next(new NotFoundErr("Пользователь с указанным _id не найден"));
+      } else {
+        next(err);
+      }
     });
 };
 
