@@ -9,11 +9,7 @@ const getCards = (req, res, next) => {
       res.send({ data: cards });
     })
     .catch((err) => {
-      if (err.name === "DocumentNotFoundError") {
-        next(new NotFoundErr("Карточки не найдены"));
-      } else {
-        next(err);
-      }
+      next(err);
     });
 };
 
@@ -37,8 +33,14 @@ const deleteCard = (req, res, next) => {
     .orFail()
     .then((card) => {
       if (req.user._id === card.owner.toString()) {
-        res.send({ data: card });
-        card.deleteOne(req.params.cardId);
+        card
+          .deleteOne()
+          .then((delCard) => {
+            res.send({ data: delCard });
+          })
+          .catch((err) => {
+            next(err);
+          });
       } else {
         throw new ForbiddenErr("Доступ к запрошенному ресурсу запрещен");
       }

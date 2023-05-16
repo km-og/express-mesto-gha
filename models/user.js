@@ -1,6 +1,7 @@
 const validator = require("validator");
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
+const UnauthErr = require("../errors/UnauthErr");
 
 const userSchema = new mongoose.Schema(
   {
@@ -23,7 +24,7 @@ const userSchema = new mongoose.Schema(
       validate: {
         // validator: (v) => validator.isURL(v),
         validator: function (v) {
-          return /https*:\/\/[w{3}.]?[\S]+#?/i.test(v);
+          return /https*:\/\/[w{3}.]?[\S]+#?\.[\S]+/i.test(v);
         },
         message: "Некорректный URL",
       },
@@ -51,11 +52,13 @@ userSchema.statics.findUserByCredentials = function (email, password) {
     .select("+password")
     .then((user) => {
       if (!user) {
-        return Promise.reject(new Error("Неправильные почта или пароль"));
+        return Promise.reject(new UnauthErr("Неправильные почта или пароль"));
       } else {
         return bcrypt.compare(password, user.password).then((matched) => {
           if (!matched) {
-            return Promise.reject(new Error("Неправильные почта или пароль"));
+            return Promise.reject(
+              new UnauthErr("Неправильные почта или пароль")
+            );
           } else {
             return user;
           }

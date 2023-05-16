@@ -4,6 +4,8 @@ const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const helmet = require("helmet");
 const router = require("./routes");
+const { errors } = require("celebrate");
+const errorHandler = require("./middlewares/errorHandler");
 
 const { PORT = 3000 } = process.env;
 const app = express();
@@ -15,7 +17,10 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use(router);
+app.use(errors());
 
 app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`);
 });
+
+app.use(errorHandler);
