@@ -3,8 +3,8 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const helmet = require("helmet");
-const router = require("./routes");
 const { errors } = require("celebrate");
+const router = require("./routes");
 const errorHandler = require("./middlewares/errorHandler");
 
 const { PORT = 3000 } = process.env;
@@ -18,9 +18,9 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use(router);
 app.use(errors());
+app.use(errorHandler);
 
 app.listen(PORT, () => {
+  // eslint-disable-next-line no-console
   console.log(`App listening on port ${PORT}`);
 });
-
-app.use(errorHandler);

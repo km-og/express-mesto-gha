@@ -46,7 +46,11 @@ const deleteCard = (req, res, next) => {
       }
     })
     .catch((err) => {
-      next(err);
+      if (err.name === "DocumentNotFoundError") {
+        next(new NotFoundErr("Карточка с указанным _id не найдена"));
+      } else {
+        next(err);
+      }
     });
 };
 
@@ -54,7 +58,7 @@ const likeCard = (req, res, next) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $addToSet: { likes: req.user._id } },
-    { new: true }
+    { new: true },
   )
     .orFail()
     .then((like) => {
@@ -63,6 +67,9 @@ const likeCard = (req, res, next) => {
     .catch((err) => {
       if (err.name === "CastError") {
         next(new BadReqErr("Переданы некорректные данные карточки"));
+      }
+      if (err.name === "DocumentNotFoundError") {
+        next(new NotFoundErr("Карточка с указанным _id не найдена"));
       } else {
         next(err);
       }
@@ -73,7 +80,7 @@ const dislikeCards = (req, res, next) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $pull: { likes: req.user._id } },
-    { new: true }
+    { new: true },
   )
     .orFail()
     .then((dislike) => {
@@ -82,6 +89,9 @@ const dislikeCards = (req, res, next) => {
     .catch((err) => {
       if (err.name === "CastError") {
         next(new BadReqErr("Переданы некорректные данные карточки"));
+      }
+      if (err.name === "DocumentNotFoundError") {
+        next(new NotFoundErr("Карточка с указанным _id не найдена"));
       } else {
         next(err);
       }

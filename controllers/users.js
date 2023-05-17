@@ -1,6 +1,7 @@
-const User = require("../models/user");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const User = require("../models/user");
+
 const { NODE_ENV, JWT_SECRET } = process.env;
 
 const BadReqErr = require("../errors/BadReqErr");
@@ -33,25 +34,30 @@ const getUserById = (req, res, next) => {
 };
 
 const createUser = (req, res, next) => {
-  const { name, about, avatar, email, password } = req.body;
+  const {
+    name, about, avatar, email, password,
+  } = req.body;
+
   bcrypt
     .hash(password, 10)
-    .then((hash) =>
-      User.create({ name, about, avatar, email, password: hash })
-        .then((user) => {
-          res.status(201).send({ data: name, about, avatar, email });
-        })
-        .catch((err) => {
-          if (err.name === "ValidationError") {
-            next(new BadReqErr("Переданы некорректные данные пользователя"));
-          }
-          if (err.name === "Unauthorized" || err.code === 11000) {
-            next(new ConflictErr("Пользователь с таким email уже существует"));
-          } else {
-            next(err);
-          }
-        })
-    )
+    .then((hash) => User.create({
+      name, about, avatar, email, password: hash,
+    })
+      .then((user) => {
+        res.status(201).send({
+          data: user.name, about, avatar, email,
+        });
+      })
+      .catch((err) => {
+        if (err.name === "ValidationError") {
+          next(new BadReqErr("Переданы некорректные данные пользователя"));
+        }
+        if (err.code === 11000) {
+          next(new ConflictErr("Пользователь с таким email уже существует"));
+        } else {
+          next(err);
+        }
+      }))
     .catch((err) => {
       next(err);
     });
@@ -65,7 +71,7 @@ const updateProfile = (req, res, next) => {
     {
       new: true,
       runValidators: true,
-    }
+    },
   )
     .orFail()
     .then((user) => {
@@ -88,7 +94,7 @@ const updateAvatar = (req, res, next) => {
     {
       new: true,
       runValidators: true,
-    }
+    },
   )
     .orFail()
     .then((user) => res.send({ data: user }))
@@ -112,7 +118,7 @@ const login = (req, res, next) => {
           : "a5b861a3d23e39525138d34dcfa6288856578fdbccefbb36e9acbf1c7889d908",
         {
           expiresIn: "7d",
-        }
+        },
       );
       res.send({ token });
       // res.cookie("jwt", token, {

@@ -1,3 +1,5 @@
+/* eslint-disable func-names */
+/* eslint-disable no-else-return */
 const validator = require("validator");
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
@@ -23,6 +25,7 @@ const userSchema = new mongoose.Schema(
         "https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png",
       validate: {
         // validator: (v) => validator.isURL(v),
+        // eslint-disable-next-line object-shorthand
         validator: function (v) {
           return /https*:\/\/[w{3}.]?[\S]+#?\.[\S]+/i.test(v);
         },
@@ -44,7 +47,7 @@ const userSchema = new mongoose.Schema(
       select: false,
     },
   },
-  { versionKey: false }
+  { versionKey: false },
 );
 
 userSchema.statics.findUserByCredentials = function (email, password) {
@@ -57,8 +60,9 @@ userSchema.statics.findUserByCredentials = function (email, password) {
         return bcrypt.compare(password, user.password).then((matched) => {
           if (!matched) {
             return Promise.reject(
-              new UnauthErr("Неправильные почта или пароль")
+              new UnauthErr("Неправильные почта или пароль"),
             );
+          // eslint-disable-next-line no-else-return
           } else {
             return user;
           }
