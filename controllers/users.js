@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/user");
@@ -43,9 +44,9 @@ const createUser = (req, res, next) => {
     .then((hash) => User.create({
       name, about, avatar, email, password: hash,
     })
-      .then((user) => {
+      .then(() => {
         res.status(201).send({
-          data: user.name, about, avatar, email,
+          data: name, about, avatar, email,
         });
       })
       .catch((err) => {

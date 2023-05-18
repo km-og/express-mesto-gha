@@ -13,7 +13,6 @@ const signupValidation = celebrate({
     about: Joi.string().min(2).max(30),
     avatar: Joi.string().pattern(
       /https*:\/\/[w{3}.]?[\S]+#?\.[\S]+/i,
-      Joi.boolean(),
     ),
     email: Joi.string().required().email(),
     password: Joi.string().required(),
@@ -37,7 +36,6 @@ const updateAvatarValidation = celebrate({
   body: Joi.object().keys({
     avatar: Joi.string().pattern(
       /https*:\/\/[w{3}.]?[\S]+#?\.[\S]+/i,
-      Joi.boolean(),
     ),
   }),
 });
@@ -47,7 +45,7 @@ const createCardValidation = celebrate({
     name: Joi.string().required().min(2).max(30),
     link: Joi.string()
       .required()
-      .pattern(/https*:\/\/[w{3}.]?[\S]+#?\.[\S]+/i, Joi.boolean()),
+      .pattern(/https*:\/\/[w{3}.]?[\S]+#?\.[\S]+/i),
   }),
 });
 
